@@ -2,6 +2,7 @@ import minimist from 'minimist';
 
 import logger from './logging';
 import { runServer } from './web/server';
+import { ModuleService } from './modules/ModuleService';
 
 const argv = minimist(process.argv.slice(2));
 
@@ -13,5 +14,8 @@ log.info('| |   / _ \\| |       | |/ _ \\ / _ \\| | |/ / | __|');
 log.info('| |__| (_) | |___    | | (_) | (_) | |   <| | |_ ');
 log.info('|_____\\___/|_____|   |_|\\___/ \\___/|_|_|\\_\\_|\\__|');
 log.info('');
+
+const moduleService = new ModuleService();
+moduleService.initialize();
 
 runServer();

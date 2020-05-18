@@ -27,7 +27,11 @@ console.log(path.join(__dirname, '../../node_modules/bootstrap/dist'));
  * Routes
  */
 app.get('/', (req, res) => {
-  res.render('index', { title: 'Home' });
+  res.render('index', { title: 'Home', version: 'v0.0.1' });
+});
+
+app.get('/modules', (req, res) => {
+  res.render('modules', { title: 'Modules', modules: [] });
 });
 
 /**

@@ -9,7 +9,7 @@ const customFormat = winston.format.printf(
 
 const createLogger = (label: string): Logger =>
   winston.createLogger({
-    level: process.env.LOGLEVEL || 'info',
+    level: process.env.LOGLEVEL || 'debug',
     format: winston.format.combine(
       winston.format.timestamp(),
       winston.format.colorize(),

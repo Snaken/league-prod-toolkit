@@ -1,0 +1,13 @@
+.container {
+  margin-top: 60px;
+}
+
+.presented {
+  padding: 0;
+}
+
+.rcv-logo {
+  height: 50px;
+  width: 50px;
+  margin: 0 5px;
+}
