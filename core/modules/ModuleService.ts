@@ -8,7 +8,7 @@ import Module, { ModuleType, Plugin } from './Module';
 const readdirPromise = promisify(readdir);
 const statPromise = promisify(stat);
 const existsPromise = promisify(exists);
-const log = logging('ModuleSrv');
+const log = logging('module-svc');
 
 export class ModuleService {
   modules: Module[] = [];
@@ -30,9 +30,24 @@ export class ModuleService {
     log.info(
       `Initialized ${this.modules.length} module(s). Now loading plugins.`
     );
+    log.debug(
+      `Modules initialized: ${this.modules
+        .map(
+          (module) =>
+            `${module.getName()} ${module.getVersion()} [${module
+              .getConfig()
+              .modes.join(', ')}]`
+        )
+        .join(', ')}`
+    );
 
     this.activePlugins = await this.loadPlugins();
     log.info(`Loaded ${this.activePlugins.length} plugin(s).`);
+    log.debug(
+      `Plugins loaded: ${this.activePlugins
+        .map((plugin) => plugin.getModule().getName())
+        .join(', ')}`
+    );
   }
 
   private async loadPlugins(): Promise<Plugin[]> {
@@ -46,7 +61,9 @@ export class ModuleService {
   }
 
   private async loadPlugin(module: Module): Promise<Plugin> {
-    const plugin = module as Plugin;
+    const plugin = new Plugin(module);
+
+    module.plugin = plugin;
 
     return plugin;
   }
@@ -86,3 +103,6 @@ export class ModuleService {
     return new Module(packageJson);
   }
 }
+
+const svc = new ModuleService();
+export default svc;

@@ -3,8 +3,25 @@ export enum ModuleType {
   PLUGIN = 'PLUGIN',
 }
 
+export type PackageJson = {
+  name: string;
+  version: string;
+  author: string;
+  toolkit: ToolkitConfig;
+};
+
+export type PluginConfig = {
+  main: string;
+};
+
+export type ToolkitConfig = {
+  modes: Array<ModuleType>;
+  plugin: undefined | PluginConfig;
+};
+
 export default class Module {
-  packageJson: any = {};
+  packageJson: PackageJson;
+  plugin: undefined | Plugin;
 
   constructor(packageJson: any) {
     this.packageJson = packageJson;
@@ -14,27 +31,70 @@ export default class Module {
     return this.packageJson.name;
   }
 
-  public getMeta(): any {
-    return this.packageJson['league-prod-toolkit'];
+  public getVersion(): string {
+    return this.packageJson.version;
   }
 
-  public getModes(): ModuleType[] {
-    return this.getMeta().modes.map((mode: string) => mode.toUpperCase());
+  public getAuthor(): string {
+    return this.packageJson.author;
+  }
+
+  public getConfig(): ToolkitConfig {
+    return this.packageJson.toolkit;
   }
 
   public hasMode(mode: ModuleType): boolean {
-    return this.getModes().includes(mode);
+    return this.getConfig().modes.includes(mode);
+  }
+
+  public hasPlugin(): boolean {
+    return this.plugin !== undefined;
+  }
+
+  public getPlugin() {
+    return this.plugin;
+  }
+
+  public toJson(goDeep: boolean = true): any {
+    return {
+      name: this.getName(),
+      version: this.getVersion(),
+      author: this.getAuthor(),
+      config: this.getConfig(),
+      plugin: goDeep ? this.getPlugin()?.toJson(false) : null,
+    };
   }
 }
 
-export class Plugin extends Module {
+export class Plugin {
   isLoaded = false;
+  isRunning = false;
+  module: Module;
+
+  constructor(module: Module) {
+    this.module = module;
+    this.isLoaded = true;
+  }
+
+  getModule() {
+    return this.module;
+  }
 
   getPluginConfig(): any {
-    return this.getMeta().plugin;
+    return this.module.getConfig().plugin;
   }
 
   getMain(): string {
     return this.getPluginConfig().main;
+  }
+
+  public toJson(goDeep: boolean = true): any {
+    return {
+      pluginConfig: this.getPluginConfig(),
+      main: this.getMain(),
+      module: goDeep ? this.getModule().toJson(false) : null,
+      isLoaded: this.isLoaded,
+      isRunning: this.isRunning,
+    };
   }
 }

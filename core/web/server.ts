@@ -2,6 +2,7 @@ import express from 'express';
 import path from 'path';
 
 import logging from '../logging';
+import controller from './controller';
 
 /**
  * App Variables
@@ -26,13 +27,13 @@ console.log(path.join(__dirname, '../../node_modules/bootstrap/dist'));
 /**
  * Routes
  */
-app.get('/', (req, res) => {
-  res.render('index', { title: 'Home', version: 'v0.0.1' });
-});
-
-app.get('/modules', (req, res) => {
-  res.render('modules', { title: 'Modules', modules: [] });
-});
+for (let [key, value] of Object.entries(controller)) {
+  app.use(key, value);
+  log.debug(`Registered route: ${key}`);
+}
+/* app.get('/', (req, res) => {
+  res.render('index', { title: 'Home', version: '0.0.1' });
+}); */
 
 /**
  * Run server

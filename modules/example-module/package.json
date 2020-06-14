@@ -4,10 +4,10 @@
   "description": "An example Module for League Production Toolkit",
   "author": "Larce",
   "license": "MIT",
-  "league-prod-toolkit": {
+  "toolkit": {
     "modes": [
-      "plugin",
-      "standalone"
+      "PLUGIN",
+      "STANDALONE"
     ],
     "plugin": {
       "main": "plugin.js"
