@@ -3,6 +3,7 @@ import minimist from 'minimist';
 import logger from './logging';
 import { runServer } from './web/server';
 import moduleService from './modules/ModuleService';
+import lpteService from './eventbus/LPTEService';
 
 const argv = minimist(process.argv.slice(2));
 
@@ -16,6 +17,7 @@ log.info('|_____\\___/|_____|   |_|\\___/ \\___/|_|_|\\_\\_|\\__|');
 log.info('');
 
 const main = async () => {
+  await lpteService.initialize();
   await moduleService.initialize();
 
   runServer();

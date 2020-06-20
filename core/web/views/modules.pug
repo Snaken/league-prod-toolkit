@@ -18,10 +18,10 @@ block layout-content
           td= mod.getVersion()
           td= mod.getAuthor()
           td= mod.getConfig().modes.join(', ')
-          - pluginStatus = mod.hasPlugin ? (mod.getPlugin().isRunning === true ? 'RUNNING' : 'STOPPED') : 'UNAVAILABLE'
+          - pluginStatus = mod.hasPlugin ? mod.getPlugin().status : 'UNAVAILABLE'
           if pluginStatus === 'RUNNING'
             td.table-success= pluginStatus
-          if pluginStatus === 'STOPPED'
+          if pluginStatus === 'UNAVAILABLE'
             td.table-danger= pluginStatus
           if pluginStatus === 'UNAVAILABLE'
             td.table-warning= pluginStatus

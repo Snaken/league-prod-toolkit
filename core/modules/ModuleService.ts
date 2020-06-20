@@ -2,6 +2,7 @@ import { promisify } from 'util';
 import { readdir, stat, exists } from 'fs';
 import path from 'path';
 
+import LPTEService from '../eventbus/LPTEService';
 import logging from '../logging';
 import Module, { ModuleType, Plugin } from './Module';
 
@@ -13,11 +14,23 @@ const log = logging('module-svc');
 export class ModuleService {
   modules: Module[] = [];
   activePlugins: Plugin[] = [];
-  // activeStandalones: Standalone[] = [];
 
   public async initialize() {
     log.info('Initializing module service.');
-    const modulePath = path.join(__dirname, '../../../modules');
+
+    // Register event handlers
+    LPTEService.on('lpt', 'plugin-status-change', (event: any) => {
+      // Get the plugin
+      const plugin = this.activePlugins.filter(plugin => plugin.getModule().getName() === event.meta.sender.name)[0];
+
+      // Check if we need to adapt the status here
+      if (plugin.status !== event.status) {
+        log.info(`Plugin status changed: plugin=${plugin.getModule().getName()}, old=${plugin.status}, new=${event.status}`);
+        plugin.status = event.status;
+      }
+    });
+
+    const modulePath = this.getModulePath();
     log.debug(`Modules path: ${modulePath}`);
     const data = await readdirPromise(modulePath);
     const allModules = await Promise.all(
@@ -48,6 +61,15 @@ export class ModuleService {
         .map((plugin) => plugin.getModule().getName())
         .join(', ')}`
     );
+
+    // Launch plugins
+    this.activePlugins.forEach((plugin) => {
+      plugin.initialize(this);
+    });
+  }
+
+  public getModulePath(): string {
+    return path.join(__dirname, '../../../modules')
   }
 
   private async loadPlugins(): Promise<Plugin[]> {
@@ -62,7 +84,6 @@ export class ModuleService {
 
   private async loadPlugin(module: Module): Promise<Plugin> {
     const plugin = new Plugin(module);
-    plugin.initialize();
 
     module.plugin = plugin;
 
@@ -101,7 +122,7 @@ export class ModuleService {
 
     const packageJson = require(packageJsonPath);
 
-    return new Module(packageJson);
+    return new Module(packageJson, folder);
   }
 }
 

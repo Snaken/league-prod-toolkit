@@ -1,3 +1,9 @@
+import path from 'path';
+import { ModuleService } from "./ModuleService";
+import { Logger } from 'winston';
+import lpteService, { LPTEService } from '../eventbus/LPTEService';
+import logger from '../logging';
+
 export enum ModuleType {
   STANDALONE = 'STANDALONE',
   PLUGIN = 'PLUGIN',
@@ -22,9 +28,11 @@ export type ToolkitConfig = {
 export default class Module {
   packageJson: PackageJson;
   plugin: undefined | Plugin;
+  folder: string;
 
-  constructor(packageJson: any) {
+  constructor(packageJson: any, folder: string) {
     this.packageJson = packageJson;
+    this.folder = folder;
   }
 
   public getName(): string {
@@ -55,21 +63,46 @@ export default class Module {
     return this.plugin;
   }
 
+  public getFolder() {
+    return this.folder;
+  }
+
   toJson(goDeep: boolean = true): any {
     return {
       name: this.getName(),
       version: this.getVersion(),
       author: this.getAuthor(),
+      folder: this.getFolder(),
       config: this.getConfig(),
       plugin: goDeep ? this.getPlugin()?.toJson(false) : null,
     };
   }
 }
 
+export enum PluginStatus {
+  RUNNING = 'RUNNING',
+  UNAVAILABLE = 'UNAVAILABLE'
+}
+
+export class PluginContext {
+  log: Logger;
+  require: (file: string) => any;
+  LPTE: LPTEService;
+  plugin: Plugin;
+
+  constructor(plugin: Plugin) {
+    this.log = logger('plugin-' + plugin.getModule().getName());
+    this.require = (file: string) => require(path.join(plugin.getModule().getFolder(), file));
+    this.LPTE = lpteService.forPlugin(plugin);
+    this.plugin = plugin;
+  }
+}
+
 export class Plugin {
   isLoaded = false;
-  isRunning = false;
+  status = PluginStatus.UNAVAILABLE;
   module: Module;
+  context: undefined | PluginContext;
 
   constructor(module: Module) {
     this.module = module;
@@ -94,12 +127,18 @@ export class Plugin {
       main: this.getMain(),
       module: goDeep ? this.getModule().toJson(false) : null,
       isLoaded: this.isLoaded,
-      isRunning: this.isRunning,
+      status: this.status,
     };
   }
 
-  initialize() {
-    const main = this.getMain();
-    console.log(main);
+  initialize(svc: ModuleService) {
+    // Craft context
+    this.context = new PluginContext(this);
+
+    const mainFile = this.getMain();
+    const main = require(path.join(this.getModule().getFolder(), mainFile));
+    
+    // Execute main
+    main(this.context);
   }
 }
