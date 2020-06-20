@@ -23,8 +23,12 @@ A module in plugin mode can only be loaded by the server. It extends server func
 not on standalone modules.
 
 #### Module: Standalone mode
-A module in standalone mode can only be loaded by a standalone runner. The runner doesn't have to be used. Then, there could be
+A module in standalone mode can be loaded by a standalone runner. The runner doesn't have to be used. Then, there could be
 any technology / programming language being used. But the websocket protocol then needs to be implemented by the component itself.
+
+#### Module: Both modes
+If a module specified both modes, it is assumed that the plugin needs to run on the server, and the standalone mode depends on the plugin. This can for example
+be used to convert or reformat the data once it reaches the server.
 
 #### Module: Dependencies
 A module in plugin mode may depend on:
@@ -41,7 +45,7 @@ A module in standalone mode may depend on:
 |---|---|
 |A tool that scraps the LCU Api|Standalone|
 |A tool that scraps the spectator client ingame Api|Standalone|
-|A tool that scraps the League HTTP Api|Plugin or Standalone, Plugin being prefered|
+|A tool that scraps the League HTTP Api|Plugin|
 |A tool that saves game in a certain format, for example in a database|Plugin|
 |A tool that provides broadcast graphics (e.g. via browser source) of some statistics, for example the gold of the individual players or a gold graph|Plugin|
 |A tool that takes the ingame data and creates some metrics with it for easier use by other plugins|Plugin|
