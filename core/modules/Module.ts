@@ -55,7 +55,7 @@ export default class Module {
     return this.plugin;
   }
 
-  public toJson(goDeep: boolean = true): any {
+  toJson(goDeep: boolean = true): any {
     return {
       name: this.getName(),
       version: this.getVersion(),
@@ -88,7 +88,7 @@ export class Plugin {
     return this.getPluginConfig().main;
   }
 
-  public toJson(goDeep: boolean = true): any {
+  toJson(goDeep: boolean = true): any {
     return {
       pluginConfig: this.getPluginConfig(),
       main: this.getMain(),
@@ -96,5 +96,10 @@ export class Plugin {
       isLoaded: this.isLoaded,
       isRunning: this.isRunning,
     };
+  }
+
+  initialize() {
+    const main = this.getMain();
+    console.log(main);
   }
 }

@@ -62,6 +62,7 @@ export class ModuleService {
 
   private async loadPlugin(module: Module): Promise<Plugin> {
     const plugin = new Plugin(module);
+    plugin.initialize();
 
     module.plugin = plugin;
 
