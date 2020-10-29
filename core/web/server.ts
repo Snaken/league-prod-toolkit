@@ -21,8 +21,7 @@ app.use(
   '/vendor/bootstrap',
   express.static(path.join(__dirname, '../../../node_modules/bootstrap/dist'))
 );
-
-console.log(path.join(__dirname, '../../node_modules/bootstrap/dist'));
+app.use(express.json());
 
 /**
  * Routes
@@ -31,9 +30,6 @@ for (let [key, value] of Object.entries(controller)) {
   app.use(key, value);
   log.debug(`Registered route: ${key}`);
 }
-/* app.get('/', (req, res) => {
-  res.render('index', { title: 'Home', version: '0.0.1' });
-}); */
 
 /**
  * Run server

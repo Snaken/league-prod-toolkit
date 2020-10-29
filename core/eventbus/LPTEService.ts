@@ -35,10 +35,13 @@ export class LPTEService implements LPTE {
     this.registrations = this.registrations.filter(registration => registration.namespace !== namespace && registration.type !== type);
   }
 
+  unregisterHandler(handler: (event: LPTEvent) => void) {
+    this.registrations = this.registrations.filter(registration => registration.handle !== handler);
+  }
+
   emit(event: LPTEvent): void {
     // Find matching handlers
     const handlers = this.registrations.filter(registration => registration.namespace === event.meta.namespace && registration.type === event.meta.type);
-
     handlers.forEach(handler => handler.handle(event));
 
     // Push to history
@@ -62,7 +65,8 @@ export class LPTEService implements LPTE {
           }
         }
         this.emit(enrichedEvent);
-      }
+      },
+      on: this.on
     }
   }
 }
