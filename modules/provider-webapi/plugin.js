@@ -1,6 +1,4 @@
-module.exports = (ctx) => {
-  // ctx.log.debug('Loading example module!');
-
+module.exports = async (ctx) => {
   // Emit event that we're ready to operate
   ctx.LPTE.emit({
     meta: {
@@ -10,4 +8,17 @@ module.exports = (ctx) => {
     },
     status: 'RUNNING'
   });
+
+  // Wait for all plugins to load
+  await ctx.LPTE.await('lpt', 'ready');
+
+  const { config } = await ctx.LPTE.request({
+    meta: {
+      type: 'request',
+      namespace: 'config',
+      version: 1
+    }
+  });
+
+  console.log(config);
 };

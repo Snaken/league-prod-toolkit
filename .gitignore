@@ -3,3 +3,4 @@ dist/
 .idea/
 core-build/
 cache/
+modules/config/config.json

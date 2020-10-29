@@ -4,7 +4,8 @@ import path from 'path';
 
 import LPTEService from '../eventbus/LPTEService';
 import logging from '../logging';
-import Module, { ModuleType, Plugin } from './Module';
+import Module, { ModuleType, Plugin, PluginStatus } from './Module';
+import { EventType } from '../eventbus/LPTE';
 
 const readdirPromise = promisify(readdir);
 const statPromise = promisify(stat);
@@ -28,6 +29,20 @@ export class ModuleService {
         log.info(`Plugin status changed: plugin=${plugin.getModule().getName()}, old=${plugin.status}, new=${event.status}`);
         plugin.status = event.status;
       }
+
+      // Check if all plugins are ready now
+      if (this.activePlugins.filter(plugin => plugin.status === PluginStatus.UNAVAILABLE).length === 0) {
+        // Loading complete
+        LPTEService.emit({
+          meta: {
+            namespace: 'lpt',
+            type: 'ready',
+            version: 1,
+            channelType: EventType.BROADCAST,
+          }
+        });
+        log.debug('All plugins ready.');
+      }
     });
 
     const modulePath = this.getModulePath();
@@ -47,7 +62,7 @@ export class ModuleService {
       `Modules initialized: ${this.modules
         .map(
           (module) =>
-            `${module.getName()} ${module.getVersion()} [${module
+            `${module.getName()}/${module.getVersion()} [${module
               .getConfig()
               .modes.join(', ')}]`
         )

@@ -1,25 +1,33 @@
 import { ModuleType } from '../modules/Module';
 
+export enum EventType {
+  BROADCAST = 'BROADCAST',
+  REQUEST = 'REQUEST',
+  REPLY = 'REPLY'
+}
+
 export type LPTEventInput = {
   meta: {
     type: string,
     namespace: string,
     version: number,
-    sender: {
+    /* sender: {
       name: string,
       version: string,
       mode: ModuleType
-    }
+    } */
   }
 }
 
 export type LPTEvent = LPTEventInput & {
   meta: {
-    sender: {
+    sender?: {
       name: string,
       version: string,
       mode: ModuleType
-    }
+    },
+    channelType: EventType,
+    reply?: string
   }
 }
 
