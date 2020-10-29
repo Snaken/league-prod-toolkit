@@ -13,8 +13,8 @@ module.exports = (ctx) => {
   ctx.LPTE.on(namespace, 'request', e => {
     ctx.LPTE.emit({
       meta: {
-        type: 'state',
-        namespace,
+        type: e.meta.reply,
+        namespace: 'reply',
         version: 1
       },
       state: gameState
