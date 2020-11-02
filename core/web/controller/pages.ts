@@ -1,4 +1,4 @@
-import express, { Router } from 'express';
+import { Router } from 'express';
 import path from 'path';
 import send from 'send';
 import fs from 'fs';
@@ -23,7 +23,8 @@ export default (globalContext: GlobalContext) => {
       {
         ...globalContext,
         fileContent,
-        title: page.name
+        title: page.name,
+        pageName: page.id
       });
     } else {
       send(req, absolutePath).pipe(res);

@@ -10,6 +10,10 @@ html
 
     link(rel="stylesheet" href="/vendor/bootstrap/css/bootstrap.min.css")
     link(rel="stylesheet" href="/static/style.css")
+
+    script(src="/vendor/jquery/jquery.min.js")
+    script(src="/vendor/bootstrap/js/bootstrap.bundle.min.js")
+    script(src="/static/frontend-lib.js")
   body
     nav.navbar.navbar-expand-md.navbar-dark.bg-dark.fixed-top
       a.navbar-brand(href="/") League Production Toolkit
@@ -32,6 +36,3 @@ html
               img.rcv-logo(src="/static/rcv.png")
     .container
       block layout-content
-    
-    script(src="/vendor/jquery/jquery.min.js")
-    script(src="/vendor/bootstrap/js/bootstrap.bundle.min.js")

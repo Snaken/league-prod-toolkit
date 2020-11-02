@@ -1,1 +1,16 @@
-<h1>League Game State</h1>
+<link rel="stylesheet" href="/pages/op-lol-game/style.css">
+<script src="/pages/op-lol-game/frontend.js"></script>
+
+<h1>League Game State: Operator Cockpit</h1>
+<div>Current State: <span class="status" id="status">UNKNOWN</span></div>
+
+<div class="setgame" id="setgame-container">
+  <hr />
+  <h2>You have not yet set up a game. </h2>
+  <h3>Set game by player name</h3>
+  <p>Only works if the game is currently running. Enter a summoner name, and load the live game.</p>
+  <form onsubmit="event.preventDefault(); formLoadByName();">
+    <input type="text" id="name" />
+    <input type="submit" value="Load game" />
+  </form>
+</div>

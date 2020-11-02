@@ -7,7 +7,7 @@ const router = Router();
 
 router.post('/events/ingest', (req, res) => {
   lpte.emit(req.body);
-  res.status(200).send();
+  res.status(200).send({});
 });
 
 router.post('/events/request', async (req, res) => {
