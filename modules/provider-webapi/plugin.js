@@ -20,5 +20,9 @@ module.exports = async (ctx) => {
     }
   });
 
+  ctx.LPTE.on('provider-webapi', 'fetch-livegame', e => {
+    ctx.LPTE.log.info('Fetching livegame data');
+    console.log(e);
+  });
   console.log(config);
 };

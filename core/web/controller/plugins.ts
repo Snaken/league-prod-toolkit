@@ -2,13 +2,20 @@ import { Router } from 'express';
 
 import moduleService from '../../modules/ModuleService';
 
-const router = Router();
+export default (globalContext: any) => {
+  const router = Router();
 
-router.get('/', (req, res) => {
-  res.render('plugins', { title: 'Plugins', plugins: moduleService.activePlugins });
-});
-router.get('/api', (req, res) => {
-  res.json(moduleService.activePlugins.map((plugin) => plugin.toJson()));
-});
+  router.get('/', (req, res) => {
+    res.render('plugins',
+    {
+      ...globalContext,
+      title: 'Plugins',
+      plugins: moduleService.activePlugins
+    });
+  });
+  router.get('/api', (req, res) => {
+    res.json(moduleService.activePlugins.map((plugin) => plugin.toJson()));
+  });
 
-export default router;
+  return router;
+}

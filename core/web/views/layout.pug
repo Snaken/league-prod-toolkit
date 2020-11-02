@@ -21,9 +21,17 @@ html
             a.nav-link(href="/plugins") Plugins
           li.nav-item
             a.nav-link(href="/events") Events
+          li.nav-item.dropdown
+            a.nav-link.dropdown-toggle(href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false") Module Config
+            .dropdown-menu(aria-labelledby="navbarDropdown")
+              each page in module_pages
+                a.dropdown-item(href="/pages/" + page.id)= page.name
         ul.navbar-nav
           li.nav-item
             a.nav-link.presented(href="https://github.com/RCVolus" target="_blank") presented by the Riot Community Volunteers
               img.rcv-logo(src="/static/rcv.png")
     .container
       block layout-content
+    
+    script(src="/vendor/jquery/jquery.min.js")
+    script(src="/vendor/bootstrap/js/bootstrap.bundle.min.js")

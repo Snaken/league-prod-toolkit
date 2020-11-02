@@ -103,7 +103,8 @@ export class LPTEService implements LPTE {
           sender: {
             name: plugin.getModule().getName(),
             version: plugin.getModule().getVersion(),
-            mode: ModuleType.PLUGIN
+            mode: ModuleType.PLUGIN,
+            path: plugin.getModule().getFolder()
           }
         }
       };

@@ -2,7 +2,8 @@ import express from 'express';
 import path from 'path';
 
 import logging from '../logging';
-import controller from './controller';
+import globalContext from './globalContext';
+import getController from './controller';
 
 /**
  * App Variables
@@ -21,12 +22,16 @@ app.use(
   '/vendor/bootstrap',
   express.static(path.join(__dirname, '../../../node_modules/bootstrap/dist'))
 );
+app.use(
+  '/vendor/jquery',
+  express.static(path.join(__dirname, '../../../node_modules/jquery/dist'))
+)
 app.use(express.json());
 
 /**
  * Routes
  */
-for (let [key, value] of Object.entries(controller)) {
+for (let [key, value] of Object.entries(getController(globalContext))) {
   app.use(key, value);
   log.debug(`Registered route: ${key}`);
 }

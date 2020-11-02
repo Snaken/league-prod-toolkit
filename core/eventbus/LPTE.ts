@@ -6,7 +6,7 @@ export enum EventType {
   REPLY = 'REPLY'
 }
 
-export type LPTEventInput = {
+export type LPTEventInput = any & {
   meta: {
     type: string,
     namespace: string,
@@ -26,7 +26,7 @@ export type LPTEvent = LPTEventInput & {
       version: string,
       mode: ModuleType
     },
-    channelType: EventType,
+    channelType?: EventType,
     reply?: string
   }
 }

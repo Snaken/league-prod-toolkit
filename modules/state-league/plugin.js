@@ -9,6 +9,20 @@ module.exports = (ctx) => {
     ingameSpectator: {}
   };
 
+  // Register new UI page
+  ctx.LPTE.emit({
+    meta: {
+      type: 'add-pages',
+      namespace: 'ui',
+      version: 1
+    },
+    pages: [{
+      name: 'LoL Game: Operator',
+      frontend: 'frontend',
+      id: 'op-lol-game'
+    }]
+  })
+
   // Answer requests to get state
   ctx.LPTE.on(namespace, 'request', e => {
     ctx.LPTE.emit({
