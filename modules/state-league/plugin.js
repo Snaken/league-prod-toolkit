@@ -1,3 +1,5 @@
+const extendLiveGameWithStatic = require('./extendLiveGameWithStatic');
+
 const namespace = 'state-league';
 
 module.exports = (ctx) => {
@@ -35,21 +37,17 @@ module.exports = (ctx) => {
     });
   });
 
-  // Register new namespace (this will make it show up in the web ui filtering)
-  /* ctx.LPTE.emit({
-    meta: {
-      type: 'register-namespace',
-      namespace: 'lpt',
-      version: 1
-    },
-    namespace
-  }); */
-
   // Set game
-  ctx.LPTE.on(namespace, 'setgame', async e => {
+  ctx.LPTE.on(namespace, 'set-game', async e => {
+    const replyMeta = {
+      namespace: 'reply',
+      type: e.meta.reply,
+      version: 1
+    };
+
     // Load game using provider-webapi
-    ctx.log.debug('Loading livegame for summoner=' + e.summonerName);
-    const { game } = await ctx.LPTE.request({
+    ctx.log.debug(`Loading livegame for summoner=${e.summonerName}`);
+    const gameResponse = await ctx.LPTE.request({
       meta: {
         namespace: 'provider-webapi',
         type: 'fetch-livegame',
@@ -58,8 +56,40 @@ module.exports = (ctx) => {
       summonerName: e.summonerName
     });
 
-    gameState.webLive = game;
+    if (!gameResponse || gameResponse.failed) {
+      ctx.log.info(`Loading livegame failed for summoner=${e.summonerName}`);
+      ctx.LPTE.emit({
+        meta: replyMeta
+      });
+      return;
+    }
+
+    const staticData = await ctx.LPTE.request({
+      meta: {
+        namespace: 'static-league',
+        type: 'request-constants',
+        version: 1
+      }
+    });
+
+    gameState.webLive = extendLiveGameWithStatic(gameResponse.game, staticData.constants);
     gameState.state = 'SET';
+    ctx.LPTE.emit({
+      meta: replyMeta,
+      webLive: gameResponse.game
+    });
+  });
+
+  ctx.LPTE.on(namespace, 'unset-game', e => {
+    gameState.state = 'UNSET';
+
+    ctx.LPTE.emit({
+      meta: {
+        namespace: 'reply',
+        type: e.meta.reply,
+        version: 1
+      }
+    });
   });
 
   // Emit event that we're ready to operate

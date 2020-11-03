@@ -12,7 +12,13 @@ router.post('/events/ingest', (req, res) => {
 
 router.post('/events/request', async (req, res) => {
   const response = await lpte.request(req.body);
-  res.status(200).send(response);
+
+  if (response) {
+    return res.status(200).send(response);
+  }
+  return res.status(500).send({
+    error: 'request timed out'
+  });
 });
 
 export default router;

@@ -43,7 +43,12 @@ export class LPTEService implements LPTE {
 
     this.emit(event);
 
-    return await this.await('reply', reply, timeout);
+    try {
+      return await this.await('reply', reply, timeout);
+    } catch {
+      log.error(`Request timed out. Request meta=${JSON.stringify(event.meta)}`);
+      return null;
+    }
   }
 
   async await(namespace: string, type: string, timeout: number = 1000): Promise<LPTEvent> {
@@ -69,6 +74,7 @@ export class LPTEService implements LPTE {
         wasHandled = true;
         this.unregisterHandler(handler);
 
+        log.warn(`Awaiting event timed out. namespace=${namespace}, type=${type}, timeout=${timeout}`);
         reject('request timed out');
       }, timeout);
     });
@@ -87,6 +93,10 @@ export class LPTEService implements LPTE {
       // Find matching handlers
       const handlers = this.registrations.filter(registration => registration.namespace === event.meta.namespace && registration.type === event.meta.type);
       handlers.forEach(handler => handler.handle(event));
+
+      if (handlers.length === 0 && event.meta.channelType === EventType.REQUEST) {
+        log.warn(`Request was sent, but no handler was executed. This will result in a timeout. Meta=${JSON.stringify(event.meta)}`);
+      }
 
       // Push to history
       this.eventHistory.push(event);

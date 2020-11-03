@@ -26,6 +26,10 @@ app.use(
   '/vendor/jquery',
   express.static(path.join(__dirname, '../../../node_modules/jquery/dist'))
 )
+app.use(
+  '/vendor/jspath',
+  express.static(path.join(__dirname, '../../../node_modules/jspath'))
+)
 app.use(express.json());
 
 /**
