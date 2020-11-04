@@ -1,3 +1,12 @@
+// Setup toasts
+toastr.options = {
+  timeOut: "0",
+  extendedTimeOut: "0",
+  showDuration: "0",
+  hideDuration: "0",
+  positionClass: "toast-top-right"
+};
+
 window.LPTE = {};
 
 const postJson = (url, request) => {
@@ -25,6 +34,35 @@ window.LPTE.emit = async request => {
   return await postJson('/api/events/ingest', request);
 }
 
+const connect = () => {
+  window.LPTE.websocket = new WebSocket(`ws${location.origin.startsWith('https://') ? 's' : ''}://${location.host}/events/egest`);
+
+  window.LPTE.websocket.onopen = () => {
+    console.log('Websocket opened');
+  }
+  window.LPTE.websocket.onclose = () => {
+    console.log('Websocket closed');
+    setTimeout(connect, 500);
+    console.log('Attemting reconnect in 500ms');
+  }
+  window.LPTE.websocket.onerror = (error) => {
+    console.log('Websocket error: ' + JSON.stringify(error));
+  }
+
+  window.LPTE.websocket.onmessage = msg => {
+    const data = JSON.parse(msg.data);
+
+    console.log(msg.data);
+
+    if (data.meta.namespace === 'log') {
+      if (data.log.level.includes('error')) {
+        toastr.error(data.log.message, 'Error');
+      }
+    }
+  }
+}
+connect();
+
 const oneWayBinding = (container, data) => {
   const containerDom = $(`#${container}`);
 
@@ -38,7 +76,6 @@ const oneWayBinding = (container, data) => {
       } else {
         value = '';
       }
-      console.log(value);
 
       if (childDom.attr('data-isdate') !== undefined) {
         value = new Date(value).toString();

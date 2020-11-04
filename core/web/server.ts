@@ -1,5 +1,7 @@
 import express from 'express';
 import path from 'path';
+import http from 'http';
+import * as WebSocket from 'ws';
 
 import logging from '../logging';
 import globalContext from './globalContext';
@@ -11,6 +13,8 @@ import getController from './controller';
 const log = logging('server');
 const app = express();
 const port = process.env.PORT || '3003';
+
+const server = http.createServer(app);
 
 /**
  * App Configuration
@@ -25,12 +29,32 @@ app.use(
 app.use(
   '/vendor/jquery',
   express.static(path.join(__dirname, '../../../node_modules/jquery/dist'))
-)
+);
 app.use(
   '/vendor/jspath',
   express.static(path.join(__dirname, '../../../node_modules/jspath'))
-)
+);
+app.use(
+  '/vendor/toastr',
+  express.static(path.join(__dirname, '../../../node_modules/toastr/build'))
+);
 app.use(express.json());
+
+/**
+ * Websocket Server
+ */
+export const wss = new WebSocket.Server({ server, path: '/events/egest' });
+
+export let wsClients: Array<WebSocket> = [];
+wss.on('connection', (socket: WebSocket) => {
+  wsClients.push(socket);
+  log.debug('Websocket client connected');
+
+  socket.on('close', () => {
+    wsClients = wsClients.filter(client => client !== socket);
+    log.debug('Websocket client disconnected');
+  });
+});
 
 /**
  * Routes
@@ -44,7 +68,7 @@ for (let [key, value] of Object.entries(getController(globalContext))) {
  * Run server
  */
 export const runServer = () => {
-  app.listen(port, () => {
+  server.listen(port, () => {
     log.info(`Listening for requests on http://localhost:${port}`);
   });
 };

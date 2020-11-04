@@ -1,6 +1,6 @@
 import minimist from 'minimist';
 
-import logger from './logging';
+import logger, { eventbusTransport } from './logging';
 import { runServer } from './web/server';
 import moduleService from './modules/ModuleService';
 import lpteService from './eventbus/LPTEService';
@@ -18,6 +18,8 @@ log.info('');
 
 const main = async () => {
   await lpteService.initialize();
+  eventbusTransport.lpte = lpteService;
+
   await moduleService.initialize();
 
   runServer();

@@ -16,3 +16,12 @@
 .eventList div {
   white-space: pre-wrap;
 }
+
+.toast-top-right {
+  top: 75px !important;
+  width: 345px;
+}
+
+.toast-top-right>div {
+  width: 500px !important;
+}

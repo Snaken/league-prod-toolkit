@@ -1,6 +1,7 @@
 import { LPTE, LPTEvent, LPTEventInput, EventType } from './LPTE';
 import logger from '../logging'
 import { Plugin, ModuleType } from '../modules/Module';
+import { wsClients } from '../web/server';
 
 const log = logger('lpte-svc');
 
@@ -96,6 +97,13 @@ export class LPTEService implements LPTE {
 
       if (handlers.length === 0 && event.meta.channelType === EventType.REQUEST) {
         log.warn(`Request was sent, but no handler was executed. This will result in a timeout. Meta=${JSON.stringify(event.meta)}`);
+      }
+
+      // Push to websockets (currently only for logs)
+      if (event.meta.namespace === 'log') {
+        wsClients.forEach(socket => {
+          socket.send(JSON.stringify(event));
+        });
       }
 
       // Push to history
