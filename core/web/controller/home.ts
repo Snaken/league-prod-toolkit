@@ -1,10 +1,10 @@
 import { Router } from 'express'
 
-export default (globalContext: any) => {
+export default (globalContext: any): Router => {
   const router = Router()
 
   router.get('/', (req, res) => {
-    res.render('index', {
+    res.render('home', {
       ...globalContext,
       title: 'Home',
       version: '0.0.1'

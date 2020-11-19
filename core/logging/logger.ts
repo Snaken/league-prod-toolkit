@@ -3,11 +3,15 @@ import Transport from 'winston-transport'
 
 import { LPTE } from '../eventbus/LPTE'
 
+interface LogTransportInfo {
+  level: string
+}
+
 const customFormat = winston.format.printf(
-  ({ level, message, label, timestamp }) =>
-    `${timestamp} [${level.padEnd(15)}] ${`\u001b[95m${label}\u001b[39m`.padEnd(
+  info =>
+    `${info.timestamp as string} [${info.level.padEnd(15)}] ${`\u001b[95m${info.label as string}\u001b[39m`.padEnd(
       22
-    )}: ${message}`
+    )}: ${info.message}`
 )
 
 export class EventbusTransport extends Transport {
@@ -19,8 +23,8 @@ export class EventbusTransport extends Transport {
     this.log = this.log.bind(this)
   }
 
-  log (info: any, callback: () => void) {
-    if (info.level.includes('error') && this.lpte) {
+  log (info: LogTransportInfo, callback: () => void): void {
+    if (info.level.includes('error') && this.lpte !== undefined) {
       this.lpte.emit({
         meta: {
           namespace: 'log',
@@ -39,7 +43,7 @@ export const eventbusTransport = new EventbusTransport()
 
 const createLogger = (label: string): Logger =>
   winston.createLogger({
-    level: process.env.LOGLEVEL || 'debug',
+    level: process.env.LOGLEVEL ?? 'debug',
     format: winston.format.combine(
       winston.format.timestamp(),
       winston.format.colorize(),

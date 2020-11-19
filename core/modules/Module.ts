@@ -1,7 +1,8 @@
 import path from 'path'
 import { ModuleService } from './ModuleService'
 import { Logger } from 'winston'
-import lpteService, { LPTEService } from '../eventbus/LPTEService'
+import lpteService from '../eventbus/LPTEService'
+import { LPTE } from '../eventbus/LPTE'
 import logger from '../logging'
 
 export enum ModuleType {
@@ -22,7 +23,7 @@ export interface PluginConfig {
 
 export interface ToolkitConfig {
   modes: ModuleType[]
-  plugin: undefined | PluginConfig
+  plugin?: PluginConfig
 }
 
 export default class Module {
@@ -59,11 +60,11 @@ export default class Module {
     return this.plugin !== undefined
   }
 
-  public getPlugin () {
+  public getPlugin (): Plugin | undefined {
     return this.plugin
   }
 
-  public getFolder () {
+  public getFolder (): string {
     return this.folder
   }
 
@@ -87,7 +88,7 @@ export enum PluginStatus {
 export class PluginContext {
   log: Logger
   require: (file: string) => any
-  LPTE: LPTEService
+  LPTE: LPTE
   plugin: Plugin
 
   constructor (plugin: Plugin) {
@@ -109,7 +110,7 @@ export class Plugin {
     this.isLoaded = true
   }
 
-  getModule () {
+  getModule (): Module {
     return this.module
   }
 
@@ -131,14 +132,17 @@ export class Plugin {
     }
   }
 
-  initialize (svc: ModuleService) {
+  async initialize (svc: ModuleService): Promise<null> {
     // Craft context
     this.context = new PluginContext(this)
 
     const mainFile = this.getMain()
-    const main = require(path.join(this.getModule().getFolder(), mainFile))
+    const { default: main } = await import(path.join(this.getModule().getFolder(), mainFile))
+    console.log(main)
 
     // Execute main
     main(this.context)
+
+    return null
   }
 }

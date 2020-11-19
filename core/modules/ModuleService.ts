@@ -1,5 +1,5 @@
 import { promisify } from 'util'
-import { readdir, stat, exists } from 'fs'
+import { readdir, stat, existsSync } from 'fs'
 import path from 'path'
 
 import LPTEService from '../eventbus/LPTEService'
@@ -9,14 +9,13 @@ import { EventType } from '../eventbus/LPTE'
 
 const readdirPromise = promisify(readdir)
 const statPromise = promisify(stat)
-const existsPromise = promisify(exists)
 const log = logging('module-svc')
 
 export class ModuleService {
   modules: Module[] = []
   activePlugins: Plugin[] = []
 
-  public async initialize () {
+  public async initialize (): Promise<void> {
     log.info('Initializing module service.')
 
     // Register event handlers
@@ -26,7 +25,7 @@ export class ModuleService {
 
       // Check if we need to adapt the status here
       if (plugin.status !== event.status) {
-        log.info(`Plugin status changed: plugin=${plugin.getModule().getName()}, old=${plugin.status}, new=${event.status}`)
+        log.info(`Plugin status changed: plugin=${plugin.getModule().getName()}, old=${plugin.status}, new=${event.status as string}`)
         plugin.status = event.status
       }
 
@@ -49,8 +48,8 @@ export class ModuleService {
     log.debug(`Modules path: ${modulePath}`)
     const data = await readdirPromise(modulePath)
     const allModules = await Promise.all(
-      data.map((folderName) =>
-        this.handleFolder(path.join(modulePath, folderName))
+      data.map(async (folderName) =>
+        await this.handleFolder(path.join(modulePath, folderName))
       )
     )
 
@@ -78,9 +77,13 @@ export class ModuleService {
     )
 
     // Launch plugins
-    this.activePlugins.forEach((plugin) => {
-      plugin.initialize(this)
-    })
+    for (const plugin of this.activePlugins) {
+      try {
+        await plugin.initialize(this)
+      } catch (e) {
+        log.error(`Plugin initialization failed for plugin ${plugin.module.getName()}: `, e)
+      }
+    }
   }
 
   public getModulePath (): string {
@@ -93,7 +96,7 @@ export class ModuleService {
     )
 
     return await Promise.all(
-      possibleModules.map((module) => this.loadPlugin(module))
+      possibleModules.map(async (module) => await this.loadPlugin(module))
     )
   }
 
@@ -105,23 +108,29 @@ export class ModuleService {
     return plugin
   }
 
-  private async handleFolder (folder: string) {
-    const statData = await statPromise(folder)
+  private async handleFolder (folder: string): Promise<Module | null> {
+    try {
+      const statData = await statPromise(folder)
 
-    if (!statData.isDirectory()) {
-      log.debug(
-        `Expected ${folder} to be a directory, but it wasn't. Skipping.`
-      )
+      if (!statData.isDirectory()) {
+        log.debug(
+          `Expected ${folder} to be a directory, but it wasn't. Skipping.`
+        )
+        return null
+      }
+
+      return await this.handleModule(folder)
+    } catch (e) {
+      log.error(`Loading module from folder ${folder} failed.`, e)
+
       return null
     }
-
-    return await this.handleModule(folder)
   }
 
   private async handleModule (folder: string): Promise<Module | null> {
     const packageJsonPath = path.join(folder, 'package.json')
 
-    if (!(await existsPromise(packageJsonPath))) {
+    if (!existsSync(packageJsonPath)) {
       log.debug(
         `Expected ${packageJsonPath} to exist, but it didn't. Skipping.`
       )
@@ -135,7 +144,7 @@ export class ModuleService {
       return null
     }
 
-    const packageJson = require(packageJsonPath)
+    const packageJson = await import(packageJsonPath)
 
     return new Module(packageJson, folder)
   }

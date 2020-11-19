@@ -1,5 +1,4 @@
-import { Response, Router } from 'express'
-import { LPTEvent } from '../../eventbus/LPTE'
+import { Router } from 'express'
 
 import lpte from '../../eventbus/LPTEService'
 
@@ -13,7 +12,7 @@ router.post('/events/ingest', (req, res) => {
 router.post('/events/request', async (req, res) => {
   const response = await lpte.request(req.body)
 
-  if (response) {
+  if (response !== null) {
     return res.status(200).send(response)
   }
   return res.status(500).send({

@@ -12,7 +12,7 @@ import getController from './controller'
  */
 const log = logging('server')
 const app = express()
-const port = process.env.PORT || '3003'
+const port = process.env.PORT ?? '3003'
 
 const server = http.createServer(app)
 
@@ -67,7 +67,7 @@ for (const [key, value] of Object.entries(getController(globalContext))) {
 /**
  * Run server
  */
-export const runServer = () => {
+export const runServer = (): void => {
   server.listen(port, () => {
     log.info(`Listening for requests on http://localhost:${port}`)
   })

@@ -26,7 +26,7 @@ export class LPTEService implements LPTE {
     this.await = this.await.bind(this)
   }
 
-  initialize () {
+  initialize (): void {
     log.info('Initialized event bus.')
   }
 
@@ -37,8 +37,8 @@ export class LPTEService implements LPTE {
     log.debug(`New event handler registered: namespace=${namespace}, type=${type}`)
   }
 
-  async request (event: LPTEvent, timeout: number = 1000): Promise<LPTEvent> {
-    const reply = event.meta.type + '-' + this.counter++
+  async request (event: LPTEvent, timeout: number = 1000): Promise<LPTEvent | null> {
+    const reply = `${event.meta.type}-${this.counter++}`
     event.meta.reply = reply
     event.meta.channelType = EventType.REQUEST
 
@@ -56,7 +56,7 @@ export class LPTEService implements LPTE {
     return await new Promise((resolve, reject) => {
       let wasHandled = false
 
-      const handler = (e: LPTEvent) => {
+      const handler = (e: LPTEvent): void => {
         if (wasHandled) {
           return
         }
@@ -76,7 +76,7 @@ export class LPTEService implements LPTE {
         this.unregisterHandler(handler)
 
         log.warn(`Awaiting event timed out. namespace=${namespace}, type=${type}, timeout=${timeout}`)
-        reject('request timed out')
+        reject(new Error('request timed out'))
       }, timeout)
     })
   }
@@ -85,7 +85,7 @@ export class LPTEService implements LPTE {
     this.registrations = this.registrations.filter(registration => registration.namespace !== namespace && registration.type !== type)
   }
 
-  unregisterHandler (handler: (event: LPTEvent) => void) {
+  unregisterHandler (handler: (event: LPTEvent) => void): void {
     this.registrations = this.registrations.filter(registration => registration.handle !== handler)
   }
 
@@ -111,7 +111,7 @@ export class LPTEService implements LPTE {
     }, 0)
   }
 
-  forPlugin (plugin: Plugin) {
+  forPlugin (plugin: Plugin): LPTE {
     const enrichEvent = (event: LPTEventInput): LPTEvent => {
       return {
         ...event,
@@ -135,9 +135,9 @@ export class LPTEService implements LPTE {
         this.emit(enrichEvent(event))
       },
       on: this.on,
-      request: (event: LPTEventInput): Promise<LPTEvent> => {
+      request: async (event: LPTEventInput): Promise<LPTEvent | null> => {
         // Enrich with sender information
-        return this.request(enrichEvent(event))
+        return await this.request(enrichEvent(event))
       },
       await: this.await
     }

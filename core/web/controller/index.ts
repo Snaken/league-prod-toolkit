@@ -4,8 +4,11 @@ import plugins from './plugins'
 import events from './events'
 import api from './api'
 import pages from './pages'
+import { Router } from 'express'
 
-export default (globalContext: any) => ({
+export default (globalContext: any): {
+  [key: string]: Router
+} => ({
   '/': home(globalContext),
   '/modules': modules(globalContext),
   '/plugins': plugins(globalContext),
