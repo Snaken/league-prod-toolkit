@@ -3,7 +3,7 @@ const e = React.createElement;
 const updateUi = (state) => {
   $('#status').text(state.state);
 
-  if (state.state === 'SET' && state.webLive.gameId) {
+  if (state.state === 'SET') {
     $('#gameinfo-container').css('display', 'block');
     $('#setgame-container').css('display', 'none');
   } else {
@@ -31,6 +31,35 @@ const formLoadByName = async () => {
     },
     by: 'summonerName',
     summonerName: name
+  });
+
+  await updateState();
+}
+
+const formLoadByGameId = async () => {
+  const gameId = $('#gameid').val();
+
+  await LPTE.request({
+    meta: {
+      namespace: 'state-league',
+      type: 'set-game',
+      version: 1
+    },
+    by: 'gameId',
+    gameId
+  });
+
+  await updateState();
+}
+
+const formLoadMatchByLive = async () => {
+  await LPTE.request({
+    meta: {
+      namespace: 'state-league',
+      type: 'set-game',
+      version: 1
+    },
+    by: 'gameId'
   });
 
   await updateState();

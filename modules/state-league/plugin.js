@@ -6,7 +6,8 @@ module.exports = (ctx) => {
   const gameState = {
     state: 'UNSET',
     webLive: {},
-    webPost: {},
+    webMatch: {},
+    timeline: {},
     lcu: {},
     ingameSpectator: {}
   };
@@ -45,49 +46,83 @@ module.exports = (ctx) => {
       version: 1
     };
 
-    // Load game using provider-webapi
-    ctx.log.debug(`Loading livegame for summoner=${e.summonerName}`);
-    const gameResponse = await ctx.LPTE.request({
-      meta: {
-        namespace: 'provider-webapi',
-        type: 'fetch-livegame',
-        version: 1
-      },
-      summonerName: e.summonerName
-    });
-
-    if (!gameResponse || gameResponse.failed) {
-      ctx.log.info(`Loading livegame failed for summoner=${e.summonerName}`);
-      ctx.LPTE.emit({
-        meta: replyMeta
+    if (e.by === 'summonerName') {
+      // Load game using provider-webapi
+      ctx.log.debug(`Loading livegame for summoner=${e.summonerName}`);
+      const gameResponse = await ctx.LPTE.request({
+        meta: {
+          namespace: 'provider-webapi',
+          type: 'fetch-livegame',
+          version: 1
+        },
+        summonerName: e.summonerName
       });
-      return;
-    }
 
-    const staticData = await ctx.LPTE.request({
-      meta: {
-        namespace: 'static-league',
-        type: 'request-constants',
-        version: 1
+      if (!gameResponse || gameResponse.failed) {
+        ctx.log.info(`Loading livegame failed for summoner=${e.summonerName}`);
+        ctx.LPTE.emit({
+          meta: replyMeta
+        });
+        return;
       }
-    });
 
-    gameState.webLive = extendLiveGameWithStatic(gameResponse.game, staticData.constants);
-    gameState.state = 'SET';
+      const staticData = await ctx.LPTE.request({
+        meta: {
+          namespace: 'static-league',
+          type: 'request-constants',
+          version: 1
+        }
+      });
 
-    ctx.LPTE.emit({
-      meta: {
-        namespace,
-        type: 'game-loaded',
-        version: 1
-      },
-      webLive: gameState.webLive
-    });
+      gameState.webLive = extendLiveGameWithStatic(gameResponse.game, staticData.constants);
+      gameState.state = 'SET';
 
-    ctx.LPTE.emit({
-      meta: replyMeta,
-      webLive: gameState.webLive
-    });
+      ctx.LPTE.emit({
+        meta: {
+          namespace,
+          type: 'game-loaded',
+          version: 1
+        },
+        webLive: gameState.webLive
+      });
+
+      ctx.LPTE.emit({
+        meta: replyMeta,
+        webLive: gameState.webLive
+      });
+    } else if (e.by === 'gameId') {
+      if (!e.gameId) {
+        e.gameId = gameState.webLive.gameId;
+      }
+
+      // Load game using provider-webapi
+      ctx.log.debug(`Loading match for gameId=${e.gameId}`);
+      const gameResponse = await ctx.LPTE.request({
+        meta: {
+          namespace: 'provider-webapi',
+          type: 'fetch-match',
+          version: 1
+        },
+        matchId: e.gameId
+      });
+
+      if (!gameResponse || gameResponse.failed) {
+        ctx.log.info(`Loading livegame failed for gameId=${e.gameId}`);
+        ctx.LPTE.emit({
+          meta: replyMeta
+        });
+        return;
+      }
+
+      gameState.webMatch = gameResponse.match;
+      gameState.timeline = gameResponse.timeline;
+      gameState.state = 'SET';
+
+      ctx.LPTE.emit({
+        meta: replyMeta,
+        webMatch: gameState.webMatch
+      })
+    }
   });
 
   ctx.LPTE.on(namespace, 'unset-game', e => {

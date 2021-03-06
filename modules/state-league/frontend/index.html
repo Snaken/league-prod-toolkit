@@ -13,6 +13,12 @@
     <input type="text" id="name" />
     <input type="submit" value="Load game" />
   </form>
+  <h3>Set game by game id</h3>
+  <p>Only works if the game is already finished.</p>
+  <form onsubmit="event.preventDefault(); formLoadByGameId();">
+    <input type="text" id="gameid" />
+    <input type="submit" value="Load game" />
+  </form>
 </div>
 
 <div class="gameinfo" id="gameinfo-container">
@@ -32,7 +38,12 @@
   <div id="participant-table"></div>
 
   <hr />
-  <form onsubmit="event.preventDefault(); formUnsetGame();">
-    <input type="submit" value="Unset game" />
-  </form>
+  <div style="display: flex">
+    <form onsubmit="event.preventDefault(); formUnsetGame();">
+      <input type="submit" value="Unset game" />
+    </form>
+    <form style="margin-left: 10px;" onsubmit="event.preventDefault(); formLoadMatchByLive();">
+      <input type="submit" value="Load match (postgame)" />
+    </form>
+  </div>
 </div>

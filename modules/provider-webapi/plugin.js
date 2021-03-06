@@ -67,6 +67,44 @@ module.exports = async (ctx) => {
     });
   });
 
+  ctx.LPTE.on('provider-webapi', 'fetch-match', async e => {
+    ctx.log.info(`Fetching match data for matchid=${e.matchId}`);
+
+    const replyMeta = {
+      type: e.meta.reply,
+      namespace: 'reply',
+      version: 1
+    };
+
+    let gameData;
+    try {
+      gameData = await riotApi.Match.gettingById(e.matchId);
+    } catch (error) {
+      ctx.log.error(`Failed to get match information for matchId=${e.matchId}. Maybe the match is not over yet? error=${error}`);
+      ctx.LPTE.emit({
+        meta: replyMeta,
+        failed: true
+      });
+      return;
+    }
+
+    let timelineData;
+    try {
+      timelineData = await riotApi.Match.gettingTimelineById(e.matchId);
+    } catch (error) {
+      ctx.log.warn(`Failed to get match timeline for matchId=${e.matchId}. Maybe the match is not over yet? Since this is optional, it will be skipped. error=${error}`);
+      return;
+    }
+
+    ctx.log.info(`Fetched match for matchId=${e.matchId}, gameId=${gameData.gameId}`);
+    ctx.LPTE.emit({
+      meta: replyMeta,
+      match: gameData,
+      timeline: timelineData,
+      failed: false
+    });
+  });
+
   // Wait for all plugins to load
   await ctx.LPTE.await('lpt', 'ready');
 

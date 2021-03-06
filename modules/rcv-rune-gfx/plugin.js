@@ -1,5 +1,3 @@
-const { couldStartTrivia } = require("typescript");
-
 const namespace = 'rcv-rune-gfx';
 
 const initialState = {
@@ -51,12 +49,31 @@ module.exports = (ctx) => {
     if (gfxState.state === 'HIDDEN') {
       // Show
       gfxState.state = '1';
-    } else if (gfxState.state === '10') {
+    } else if (gfxState.state === '5') {
       // End
       gfxState.state = 'HIDDEN';
     } else {
       let number = parseInt(gfxState.state);
       number++;
+      gfxState.state = number.toString();
+    }
+  });
+
+  // Move a step backward in animation
+  ctx.LPTE.on(namespace, 'previous-step', async e => {
+    if (gfxState.dataState !== 'READY') {
+      return;
+    }
+
+    if (gfxState.state === 'HIDDEN') {
+      // Show
+      gfxState.state = '5';
+    } else if (gfxState.state === '1') {
+      // End
+      gfxState.state = 'HIDDEN';
+    } else {
+      let number = parseInt(gfxState.state);
+      number--;
       gfxState.state = number.toString();
     }
   });
