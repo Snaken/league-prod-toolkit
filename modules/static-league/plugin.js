@@ -7,7 +7,9 @@ module.exports = (ctx) => {
       queues: require('./constants/queues.json'),
       maps: require('./constants/maps.json'),
       gameModes: require('./constants/gameModes.json'),
-      gameTypes: require('./constants/gameTypes.json')
+      gameTypes: require('./constants/gameTypes.json'),
+      perksFlat: require('./constants/runes.json'),
+      champions: Object.values(require('./constants/champions.json').data)
     }
   };
 

@@ -20,13 +20,13 @@ class Registration {
 export class LPTEService implements LPTE {
   registrations: Array<Registration> = [];
   eventHistory: Array<LPTEvent> = [];
-  counter: number = 0;
+  counter = 0;
 
   constructor() {
     this.await = this.await.bind(this);
   }
 
-  initialize() {
+  initialize(): void {
     log.info('Initialized event bus.')
   }
 
@@ -37,8 +37,8 @@ export class LPTEService implements LPTE {
     log.debug(`New event handler registered: namespace=${namespace}, type=${type}`);
   }
 
-  async request(event: LPTEvent, timeout: number = 1000): Promise<LPTEvent> {
-    const reply = event.meta.type + "-" + this.counter++;
+  async request(event: LPTEvent, timeout = 1000): Promise<LPTEvent> {
+    const reply = event.meta.type + '-' + this.counter++;
     event.meta.reply = reply;
     event.meta.channelType = EventType.REQUEST;
 
@@ -52,11 +52,11 @@ export class LPTEService implements LPTE {
     }
   }
 
-  async await(namespace: string, type: string, timeout: number = 1000): Promise<LPTEvent> {
+  async await(namespace: string, type: string, timeout = 1000): Promise<LPTEvent> {
     return new Promise((resolve, reject) => {
       let wasHandled = false;
 
-      const handler = (e: LPTEvent) => {
+      const handler = (e: LPTEvent): void => {
         if (wasHandled) {
           return;
         }
@@ -85,7 +85,7 @@ export class LPTEService implements LPTE {
     this.registrations = this.registrations.filter(registration => registration.namespace !== namespace && registration.type !== type);
   }
 
-  unregisterHandler(handler: (event: LPTEvent) => void) {
+  unregisterHandler(handler: (event: LPTEvent) => void): void {
     this.registrations = this.registrations.filter(registration => registration.handle !== handler);
   }
 
@@ -111,7 +111,7 @@ export class LPTEService implements LPTE {
     }, 0);
   }
 
-  forPlugin(plugin: Plugin) {
+  forPlugin(plugin: Plugin): LPTE {
     const enrichEvent = (event: LPTEventInput): LPTEvent => {
       return {
         ...event,

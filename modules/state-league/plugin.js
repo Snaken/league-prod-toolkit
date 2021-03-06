@@ -74,9 +74,19 @@ module.exports = (ctx) => {
 
     gameState.webLive = extendLiveGameWithStatic(gameResponse.game, staticData.constants);
     gameState.state = 'SET';
+
+    ctx.LPTE.emit({
+      meta: {
+        namespace,
+        type: 'game-loaded',
+        version: 1
+      },
+      webLive: gameState.webLive
+    });
+
     ctx.LPTE.emit({
       meta: replyMeta,
-      webLive: gameResponse.game
+      webLive: gameState.webLive
     });
   });
 

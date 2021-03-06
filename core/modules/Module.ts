@@ -1,8 +1,9 @@
 import path from 'path';
-import { ModuleService } from "./ModuleService";
+import { ModuleService } from './ModuleService';
 import { Logger } from 'winston';
-import lpteService, { LPTEService } from '../eventbus/LPTEService';
+import lpteService from '../eventbus/LPTEService';
 import logger from '../logging';
+import { LPTE } from '../eventbus/LPTE';
 
 export enum ModuleType {
   STANDALONE = 'STANDALONE',
@@ -87,7 +88,7 @@ export enum PluginStatus {
 export class PluginContext {
   log: Logger;
   require: (file: string) => any;
-  LPTE: LPTEService;
+  LPTE: LPTE;
   plugin: Plugin;
 
   constructor(plugin: Plugin) {

@@ -1,0 +1,21 @@
+.box.hidden {
+  width: 0 !important;
+}
+
+.box {
+  position: absolute;
+  width: 800px;
+  height: 260px;
+
+  bottom: 109px;
+
+  transition: width 1s;
+
+  background-size: cover;
+}
+.blue-box {
+  right: calc(50% + 80px);
+}
+.red-box {
+  left: calc(50% + 80px);
+}

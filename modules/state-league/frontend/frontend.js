@@ -66,7 +66,7 @@ const getTeam = teamId => teamId === 100 ? 'blue' : 'red';
 const getParticipantRow = participant => [
   participant.summonerName,
   getTeam(participant.teamId),
-  participant.championId,
+  participant.champion.name,
   participant.spell1Id,
   participant.spell2Id
 ];

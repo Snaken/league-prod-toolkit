@@ -10,6 +10,15 @@ router.post('/events/ingest', (req, res) => {
   res.status(200).send({});
 });
 
+router.get('/events/shortcut/ingest/:namespace/:type', (req, res) => {
+  lpte.emit({
+    namespace: req.params.namespace,
+    type: req.params.type,
+    version: 1
+  });
+  res.status(200).send({});
+})
+
 router.post('/events/request', async (req, res) => {
   const response = await lpte.request(req.body);
 

@@ -1,11 +1,13 @@
 // Setup toasts
-toastr.options = {
-  timeOut: "0",
-  extendedTimeOut: "0",
-  showDuration: "0",
-  hideDuration: "0",
-  positionClass: "toast-top-right"
-};
+if (window.toastr) {
+  window.toastr.options = {
+    timeOut: "0",
+    extendedTimeOut: "0",
+    showDuration: "0",
+    hideDuration: "0",
+    positionClass: "toast-top-right"
+  };
+}
 
 window.LPTE = {};
 

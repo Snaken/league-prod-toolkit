@@ -36,10 +36,11 @@ export class EventbusTransport extends Transport {
 }
 
 export const eventbusTransport = new EventbusTransport();
+eventbusTransport.setMaxListeners(100)
 
 const createLogger = (label: string): Logger =>
   winston.createLogger({
-    level: process.env.LOGLEVEL || 'debug',
+    level: process.env.LOGLEVEL || 'info',
     format: winston.format.combine(
       winston.format.timestamp(),
       winston.format.colorize(),
