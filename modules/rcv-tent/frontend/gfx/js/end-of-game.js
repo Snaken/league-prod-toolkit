@@ -236,7 +236,7 @@ function displayDmg () {
 
     const dmgBar = document.createElement('div')
     dmgBar.classList.add('dmgBar')
-    dmgBar.style.width = `calc(${ratio}% - 4rem)`
+    dmgBar.style.width = `calc(${ratio}% - 4.5rem)`
 
     const dmgText = document.createElement('h3')
     dmgText.innerHTML = calcK(dmg)

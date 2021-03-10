@@ -16,16 +16,6 @@ module.exports = async (ctx) => {
     });
   } */
 
-  // Emit event that we're ready to operate
-  ctx.LPTE.emit({
-    meta: {
-      type: 'plugin-status-change',
-      namespace: 'lpt',
-      version: 1
-    },
-    status: 'RUNNING'
-  });
-
   ctx.LPTE.on('provider-webapi', 'fetch-livegame', async e => {
     ctx.log.info(`Fetching livegame data for summoner=${e.summonerName}`);
 
@@ -103,6 +93,16 @@ module.exports = async (ctx) => {
       timeline: timelineData,
       failed: false
     });
+  });
+
+  // Emit event that we're ready to operate
+  ctx.LPTE.emit({
+    meta: {
+      type: 'plugin-status-change',
+      namespace: 'lpt',
+      version: 1
+    },
+    status: 'RUNNING'
   });
 
   // Wait for all plugins to load

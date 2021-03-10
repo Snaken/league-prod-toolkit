@@ -1,4 +1,4 @@
-const namespace = 'rcv-rune-gfx';
+const namespace = 'rcv-tent';
 
 const initialState = {
   postMatchShow: 'DAMAGE'
