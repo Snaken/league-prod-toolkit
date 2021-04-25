@@ -5,6 +5,7 @@
   "author": "Larce",
   "license": "MIT",
   "toolkit": {
+    "scope": "core",
     "modes": [
       "PLUGIN"
     ],

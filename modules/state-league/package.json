@@ -1,10 +1,11 @@
 {
   "name": "state-league",
   "version": "1.0.0",
-  "description": "Module that provides state integration for League of Legends games",
+  "description": "Provides state integration for League of Legends games",
   "author": "Larce",
   "license": "MIT",
   "toolkit": {
+    "scope": "core",
     "modes": [
       "PLUGIN"
     ],

@@ -1,3 +1,5 @@
+/* global toastr, LPTE, Headers, fetch, WebSocket, location, $, JSPath */
+
 // Setup toasts
 toastr.options = {
   timeOut: '0',
@@ -26,30 +28,30 @@ const postJson = (url, request) => {
     .then(response => response.json())
 }
 
-window.LPTE.request = async request => {
+LPTE.request = async request => {
   return await postJson('/api/events/request', request)
 }
 
-window.LPTE.emit = async request => {
+LPTE.emit = async request => {
   return await postJson('/api/events/ingest', request)
 }
 
 const connect = () => {
-  window.LPTE.websocket = new WebSocket(`ws${location.origin.startsWith('https://') ? 's' : ''}://${location.host}/events/egest`)
+  LPTE.websocket = new WebSocket(`ws${location.origin.startsWith('https://') ? 's' : ''}://${location.host}/events/egest`)
 
-  window.LPTE.websocket.onopen = () => {
+  LPTE.websocket.onopen = () => {
     console.log('Websocket opened')
   }
-  window.LPTE.websocket.onclose = () => {
+  LPTE.websocket.onclose = () => {
     console.log('Websocket closed')
     setTimeout(connect, 500)
     console.log('Attemting reconnect in 500ms')
   }
-  window.LPTE.websocket.onerror = (error) => {
+  LPTE.websocket.onerror = (error) => {
     console.log('Websocket error: ' + JSON.stringify(error))
   }
 
-  window.LPTE.websocket.onmessage = msg => {
+  LPTE.websocket.onmessage = msg => {
     const data = JSON.parse(msg.data)
 
     console.log(msg.data)
@@ -63,6 +65,7 @@ const connect = () => {
 }
 connect()
 
+// eslint-disable-next-line no-unused-vars
 const oneWayBinding = (container, data) => {
   const containerDom = $(`#${container}`)
 

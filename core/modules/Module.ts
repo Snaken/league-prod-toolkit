@@ -1,32 +1,6 @@
-import path from 'path'
-import { ModuleService } from './ModuleService'
-import { Logger } from 'winston'
-import lpteService from '../eventbus/LPTEService'
-import { LPTE } from '../eventbus/LPTE'
-import logger from '../logging'
+import { ModuleType, PackageJson, Plugin, ToolkitConfig } from '.'
 
-export enum ModuleType {
-  STANDALONE = 'STANDALONE',
-  PLUGIN = 'PLUGIN',
-}
-
-export interface PackageJson {
-  name: string
-  version: string
-  author: string
-  toolkit: ToolkitConfig
-}
-
-export interface PluginConfig {
-  main: string
-}
-
-export interface ToolkitConfig {
-  modes: ModuleType[]
-  plugin?: PluginConfig
-}
-
-export default class Module {
+export class Module {
   packageJson: PackageJson
   plugin: undefined | Plugin
   folder: string
@@ -68,6 +42,14 @@ export default class Module {
     return this.folder
   }
 
+  public getIsDisabled (): boolean {
+    return this.getConfig().disabled === true
+  }
+
+  public getScope (): string {
+    return this.getConfig().scope
+  }
+
   toJson (goDeep: boolean = true): any {
     return {
       name: this.getName(),
@@ -77,72 +59,5 @@ export default class Module {
       config: this.getConfig(),
       plugin: goDeep ? this.getPlugin()?.toJson(false) : null
     }
-  }
-}
-
-export enum PluginStatus {
-  RUNNING = 'RUNNING',
-  UNAVAILABLE = 'UNAVAILABLE'
-}
-
-export class PluginContext {
-  log: Logger
-  require: (file: string) => any
-  LPTE: LPTE
-  plugin: Plugin
-
-  constructor (plugin: Plugin) {
-    this.log = logger('plugin-' + plugin.getModule().getName())
-    this.require = (file: string) => require(path.join(plugin.getModule().getFolder(), file))
-    this.LPTE = lpteService.forPlugin(plugin)
-    this.plugin = plugin
-  }
-}
-
-export class Plugin {
-  isLoaded = false
-  status = PluginStatus.UNAVAILABLE
-  module: Module
-  context: undefined | PluginContext
-
-  constructor (module: Module) {
-    this.module = module
-    this.isLoaded = true
-  }
-
-  getModule (): Module {
-    return this.module
-  }
-
-  getPluginConfig (): any {
-    return this.module.getConfig().plugin
-  }
-
-  getMain (): string {
-    return this.getPluginConfig().main
-  }
-
-  toJson (goDeep: boolean = true): any {
-    return {
-      pluginConfig: this.getPluginConfig(),
-      main: this.getMain(),
-      module: goDeep ? this.getModule().toJson(false) : null,
-      isLoaded: this.isLoaded,
-      status: this.status
-    }
-  }
-
-  async initialize (svc: ModuleService): Promise<null> {
-    // Craft context
-    this.context = new PluginContext(this)
-
-    const mainFile = this.getMain()
-    const { default: main } = await import(path.join(this.getModule().getFolder(), mainFile))
-    console.log(main)
-
-    // Execute main
-    main(this.context)
-
-    return null
   }
 }

@@ -1,6 +1,6 @@
-const extendLiveGameWithStatic = require('./extendLiveGameWithStatic');
+const extendLiveGameWithStatic = require('./extendLiveGameWithStatic')
 
-const namespace = 'state-league';
+const namespace = 'state-league'
 
 module.exports = (ctx) => {
   const gameState = {
@@ -9,7 +9,7 @@ module.exports = (ctx) => {
     webPost: {},
     lcu: {},
     ingameSpectator: {}
-  };
+  }
 
   // Register new UI page
   ctx.LPTE.emit({
@@ -23,7 +23,7 @@ module.exports = (ctx) => {
       frontend: 'frontend',
       id: 'op-lol-game'
     }]
-  });
+  })
 
   // Answer requests to get state
   ctx.LPTE.on(namespace, 'request', e => {
@@ -34,8 +34,8 @@ module.exports = (ctx) => {
         version: 1
       },
       state: gameState
-    });
-  });
+    })
+  })
 
   // Set game
   ctx.LPTE.on(namespace, 'set-game', async e => {
@@ -43,10 +43,10 @@ module.exports = (ctx) => {
       namespace: 'reply',
       type: e.meta.reply,
       version: 1
-    };
+    }
 
     // Load game using provider-webapi
-    ctx.log.debug(`Loading livegame for summoner=${e.summonerName}`);
+    ctx.log.debug(`Loading livegame for summoner=${e.summonerName}`)
     const gameResponse = await ctx.LPTE.request({
       meta: {
         namespace: 'provider-webapi',
@@ -54,14 +54,14 @@ module.exports = (ctx) => {
         version: 1
       },
       summonerName: e.summonerName
-    });
+    })
 
     if (!gameResponse || gameResponse.failed) {
-      ctx.log.info(`Loading livegame failed for summoner=${e.summonerName}`);
+      ctx.log.info(`Loading livegame failed for summoner=${e.summonerName}`)
       ctx.LPTE.emit({
         meta: replyMeta
-      });
-      return;
+      })
+      return
     }
 
     const staticData = await ctx.LPTE.request({
@@ -70,18 +70,18 @@ module.exports = (ctx) => {
         type: 'request-constants',
         version: 1
       }
-    });
+    })
 
-    gameState.webLive = extendLiveGameWithStatic(gameResponse.game, staticData.constants);
-    gameState.state = 'SET';
+    gameState.webLive = extendLiveGameWithStatic(gameResponse.game, staticData.constants)
+    gameState.state = 'SET'
     ctx.LPTE.emit({
       meta: replyMeta,
       webLive: gameResponse.game
-    });
-  });
+    })
+  })
 
   ctx.LPTE.on(namespace, 'unset-game', e => {
-    gameState.state = 'UNSET';
+    gameState.state = 'UNSET'
 
     ctx.LPTE.emit({
       meta: {
@@ -89,16 +89,16 @@ module.exports = (ctx) => {
         type: e.meta.reply,
         version: 1
       }
-    });
-  });
+    })
+  })
 
   // Emit event that we're ready to operate
   ctx.LPTE.emit({
     meta: {
       type: 'plugin-status-change',
-      namespace: 'lpt',
+      namespace: 'lpt-core',
       version: 1
     },
     status: 'RUNNING'
-  });
-};
+  })
+}

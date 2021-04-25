@@ -1,13 +1,13 @@
 module.exports = (ctx) => {
-  /* ctx.log.debug('Loading example module!');
+  /* ctx.log.debug('Loading example module!')
 
   // Emit event that we're ready to operate
   ctx.LPTE.emit({
     meta: {
       type: 'plugin-status-change',
-      namespace: 'lpt',
+      namespace: 'lpt-provider',
       version: 1
     },
     status: 'RUNNING'
-  }); */
-};
+  }) */
+}

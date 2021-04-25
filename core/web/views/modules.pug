@@ -7,7 +7,9 @@ block layout-content
     thead
       tr
         th Name
+        th Scope
         th Version
+        th Disabled
         th Author
         th Modes
         th Plugin
@@ -15,7 +17,9 @@ block layout-content
       each mod in modules
         tr
           td= mod.getName()
+          td= mod.getScope()
           td= mod.getVersion()
+          td= mod.getIsDisabled()
           td= mod.getAuthor()
           td= mod.getConfig().modes.join(', ')
           - pluginStatus = mod.hasPlugin() ? mod.getPlugin().status : 'UNAVAILABLE'

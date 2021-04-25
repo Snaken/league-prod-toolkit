@@ -1,21 +1,9 @@
-import { LPTE, LPTEvent, LPTEventInput, EventType } from './LPTE'
 import logger from '../logging'
-import { Plugin, ModuleType } from '../modules/Module'
+import { Plugin, ModuleType } from '../modules'
 import { wsClients } from '../web/server'
+import { EventType, LPTE, LPTEvent, LPTEventInput, Registration } from '.'
 
 const log = logger('lpte-svc')
-
-class Registration {
-  type: string
-  namespace: string
-  handle: (event: LPTEvent) => void
-
-  constructor (namespace: string, type: string, handler: (event: LPTEvent) => void) {
-    this.namespace = namespace
-    this.type = type
-    this.handle = handler
-  }
-}
 
 export class LPTEService implements LPTE {
   registrations: Registration[] = []

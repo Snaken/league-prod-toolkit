@@ -4,8 +4,8 @@ import path from 'path'
 
 import LPTEService from '../eventbus/LPTEService'
 import logging from '../logging'
-import Module, { ModuleType, Plugin, PluginStatus } from './Module'
-import { EventType } from '../eventbus/LPTE'
+import { Module, Plugin, PluginStatus, ModuleType } from '.'
+import { EventType } from 'eventbus'
 
 const readdirPromise = promisify(readdir)
 const statPromise = promisify(stat)
@@ -19,29 +19,18 @@ export class ModuleService {
     log.info('Initializing module service.')
 
     // Register event handlers
-    LPTEService.on('lpt', 'plugin-status-change', (event: any) => {
-      // Get the plugin
-      const plugin = this.activePlugins.filter(plugin => plugin.getModule().getName() === event.meta.sender.name)[0]
+    LPTEService.on('lpt-core', 'plugin-status-change', (event: any) => {
+      pluginStatusChange(event, this.activePlugins)
+    })
 
-      // Check if we need to adapt the status here
-      if (plugin.status !== event.status) {
-        log.info(`Plugin status changed: plugin=${plugin.getModule().getName()}, old=${plugin.status}, new=${event.status as string}`)
-        plugin.status = event.status
-      }
+    // Register event handlers
+    LPTEService.on('lpt-provider', 'plugin-status-change', (event: any) => {
+      pluginStatusChange(event, this.activePlugins)
+    })
 
-      // Check if all plugins are ready now
-      if (this.activePlugins.filter(plugin => plugin.status === PluginStatus.UNAVAILABLE).length === 0) {
-        // Loading complete
-        LPTEService.emit({
-          meta: {
-            namespace: 'lpt',
-            type: 'ready',
-            version: 1,
-            channelType: EventType.BROADCAST
-          }
-        })
-        log.debug('All plugins ready.')
-      }
+    // Register event handlers
+    LPTEService.on('lpt-output', 'plugin-status-change', (event: any) => {
+      pluginStatusChange(event, this.activePlugins)
     })
 
     const modulePath = this.getModulePath()
@@ -61,7 +50,7 @@ export class ModuleService {
       `Modules initialized: ${this.modules
         .map(
           (module) =>
-            `${module.getName()}/${module.getVersion()} [${module
+            `${module.getConfig().disabled === true ? '(DISABLED)' : ''}${module.getName()}/${module.getVersion()} [${module
               .getConfig()
               .modes.join(', ')}]`
         )
@@ -92,7 +81,7 @@ export class ModuleService {
 
   private async loadPlugins (): Promise<Plugin[]> {
     const possibleModules = this.modules.filter((module) =>
-      module.hasMode(ModuleType.PLUGIN)
+      module.hasMode(ModuleType.PLUGIN) && !module.getIsDisabled()
     )
 
     return await Promise.all(
@@ -147,6 +136,32 @@ export class ModuleService {
     const packageJson = await import(packageJsonPath)
 
     return new Module(packageJson, folder)
+  }
+}
+
+var pluginStatusChange = (event: any, activePlugins: Plugin[]): void => {
+  // Get the plugin
+  const plugin = activePlugins.filter(plugin => plugin.getModule().getName() === event.meta.sender.name)[0]
+
+  // Check if we need to adapt the status here
+  if (plugin.status !== event.status) {
+    log.info(`Plugin status changed: plugin=${plugin.getModule().getName()}, old=${plugin.status}, new=${event.status as string}`)
+    plugin.status = event.status
+  }
+
+  // Check if all plugins are ready now
+  const pluginScope = plugin.getScope()
+  if (activePlugins.filter(aPlugin => aPlugin.status === PluginStatus.UNAVAILABLE && aPlugin.getScope() === pluginScope).length === 0) {
+    // Loading complete
+    LPTEService.emit({
+      meta: {
+        namespace: `lpt-${pluginScope}`,
+        type: 'ready',
+        version: 1,
+        channelType: EventType.BROADCAST
+      }
+    })
+    log.debug(`All ${pluginScope} plugins ready.`)
   }
 }
 

@@ -1,11 +1,5 @@
+import { EventbusTransport } from 'logging'
 import winston, { Logger } from 'winston'
-import Transport from 'winston-transport'
-
-import { LPTE } from '../eventbus/LPTE'
-
-interface LogTransportInfo {
-  level: string
-}
 
 const customFormat = winston.format.printf(
   info =>
@@ -13,31 +7,6 @@ const customFormat = winston.format.printf(
       22
     )}: ${info.message}`
 )
-
-export class EventbusTransport extends Transport {
-  lpte?: LPTE
-
-  constructor (opts: any = {}) {
-    super(opts)
-
-    this.log = this.log.bind(this)
-  }
-
-  log (info: LogTransportInfo, callback: () => void): void {
-    if (info.level.includes('error') && this.lpte !== undefined) {
-      this.lpte.emit({
-        meta: {
-          namespace: 'log',
-          type: 'message',
-          version: 1
-        },
-        log: info
-      })
-    }
-
-    callback()
-  }
-}
 
 export const eventbusTransport = new EventbusTransport()
 

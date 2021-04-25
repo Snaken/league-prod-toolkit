@@ -1,27 +1,30 @@
-const e = React.createElement;
+/* global React, $, oneWayBinding, ReactDOM, LPTE */
+
+const e = React.createElement
 
 const updateUi = (state) => {
-  $('#status').text(state.state);
+  $('#status').text(state.state)
 
   if (state.state === 'SET' && state.webLive.gameId) {
-    $('#gameinfo-container').css('display', 'block');
-    $('#setgame-container').css('display', 'none');
+    $('#gameinfo-container').css('display', 'block')
+    $('#setgame-container').css('display', 'none')
   } else {
-    $('#gameinfo-container').css('display', 'none');
+    $('#gameinfo-container').css('display', 'none')
     $('#setgame-container').css('display', 'block')
   }
 
-  oneWayBinding('gameinfo-container', state.webLive);
-  ReactDOM.render(e(ParticipantTable, { participants: state.webLive.participants || [] }), document.getElementById('participant-table'));
-  ReactDOM.render(e(BanTable, { bans: state.webLive.bannedChampions || [] }), document.getElementById('ban-table'));
+  oneWayBinding('gameinfo-container', state.webLive)
+  ReactDOM.render(e(ParticipantTable, { participants: state.webLive.participants || [] }), document.getElementById('participant-table'))
+  ReactDOM.render(e(BanTable, { bans: state.webLive.bannedChampions || [] }), document.getElementById('ban-table'))
 
   /* $('.data--game_id').text(state.webLive.gameId);
   $('.data--game_start').text(new Date(state.webLive.gameStartTime).toLocaleString());
   $('.data--game_platform').text(state.webLive.platformId); */
-};
+}
 
+// eslint-disable-next-line no-unused-vars
 const formLoadByName = async () => {
-  const name = $('#name').val();
+  const name = $('#name').val()
 
   await LPTE.request({
     meta: {
@@ -31,11 +34,12 @@ const formLoadByName = async () => {
     },
     by: 'summonerName',
     summonerName: name
-  });
+  })
 
-  await updateState();
+  await updateState()
 }
 
+// eslint-disable-next-line no-unused-vars
 const formUnsetGame = async () => {
   await LPTE.request({
     meta: {
@@ -43,9 +47,9 @@ const formUnsetGame = async () => {
       type: 'unset-game',
       version: 1
     }
-  });
+  })
 
-  await updateState();
+  await updateState()
 }
 
 const updateState = async () => {
@@ -55,13 +59,13 @@ const updateState = async () => {
       type: 'request',
       version: 1
     }
-  });
+  })
 
-  console.log(response);
-  updateUi(response.state);
+  console.log(response)
+  updateUi(response.state)
 }
 
-const getTeam = teamId => teamId === 100 ? 'blue' : 'red';
+const getTeam = teamId => teamId === 100 ? 'blue' : 'red'
 
 const getParticipantRow = participant => [
   participant.summonerName,
@@ -69,18 +73,18 @@ const getParticipantRow = participant => [
   participant.championId,
   participant.spell1Id,
   participant.spell2Id
-];
+]
 
-const ParticipantTable = ({ participants }) => 
+const ParticipantTable = ({ participants }) =>
   e('table', { className: 'table' }, [
     e(
       'thead', {}, React.createElement(
         'tr', {}, ['Name', 'Team', 'Champion', 'Spell 1', 'Spell 2'].map(content => e('th', {}, content))
-        )
+      )
     ),
     e('tbody', {},
       participants.map((participant, index) => [
-        e('tr', {'data-toggle': 'collapse', 'data-target': `.participant${index}`},
+        e('tr', { 'data-toggle': 'collapse', 'data-target': `.participant${index}` },
           getParticipantRow(participant).map(td =>
             e('td', {}, td)
           )
@@ -88,7 +92,7 @@ const ParticipantTable = ({ participants }) =>
         e('td', { colspan: 5, className: `collapse participant${index}` }, JSON.stringify(participant))
       ])
     )
-  ]);
+  ])
 
 const getBanRow = ban => [
   ban.pickTurn,
@@ -96,26 +100,26 @@ const getBanRow = ban => [
   ban.championId
 ]
 
-const BanTable = ({ bans }) => 
+const BanTable = ({ bans }) =>
   e('table', { className: 'table' }, [
     e(
       'thead', {}, React.createElement(
         'tr', {}, ['Turn', 'Team', 'Champion'].map(content => e('th', {}, content))
-        )
+      )
     ),
     e('tbody', {},
       bans.map((ban, index) =>
-        e('tr', {'data-toggle': 'collapse', 'data-target': `.ban${index}`},
+        e('tr', { 'data-toggle': 'collapse', 'data-target': `.ban${index}` },
           getBanRow(ban).map(td =>
             e('td', {}, td)
           )
         )
       )
     )
-  ]);
+  ])
 
 const start = async () => {
-  await updateState();
-};
+  await updateState()
+}
 
-start();
+start()

@@ -1,36 +1,4 @@
-import { ModuleType } from '../modules/Module'
-
-export enum EventType {
-  BROADCAST = 'BROADCAST',
-  REQUEST = 'REQUEST',
-  REPLY = 'REPLY'
-}
-
-export interface LPTEventInput {
-  meta: {
-    type: string
-    namespace: string
-    version: number
-    /* sender: {
-      name: string,
-      version: string,
-      mode: ModuleType
-    } */
-  }
-  [key: string]: any
-}
-
-export type LPTEvent = LPTEventInput & {
-  meta: {
-    sender?: {
-      name: string
-      version: string
-      mode: ModuleType
-    }
-    channelType?: EventType
-    reply?: string
-  }
-}
+import { LPTEvent, LPTEventInput } from '.'
 
 export interface LPTE {
   /**

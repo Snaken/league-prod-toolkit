@@ -1,4 +1,4 @@
-const namespace = 'static-league';
+const namespace = 'static-league'
 
 module.exports = (ctx) => {
   const gameStatic = {
@@ -9,7 +9,7 @@ module.exports = (ctx) => {
       gameModes: require('./constants/gameModes.json'),
       gameTypes: require('./constants/gameTypes.json')
     }
-  };
+  }
 
   // Answer requests to get state
   ctx.LPTE.on(namespace, 'request-constants', e => {
@@ -20,16 +20,16 @@ module.exports = (ctx) => {
         version: 1
       },
       constants: gameStatic.constants
-    });
-  });
+    })
+  })
 
   // Emit event that we're ready to operate
   ctx.LPTE.emit({
     meta: {
       type: 'plugin-status-change',
-      namespace: 'lpt',
+      namespace: 'lpt-core',
       version: 1
     },
     status: 'RUNNING'
-  });
-};
+  })
+}

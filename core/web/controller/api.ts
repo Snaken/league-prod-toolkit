@@ -9,6 +9,7 @@ router.post('/events/ingest', (req, res) => {
   res.status(200).send({})
 })
 
+// eslint-disable-next-line @typescript-eslint/no-misused-promises
 router.post('/events/request', async (req, res) => {
   const response = await lpte.request(req.body)
 
